@@ -89,6 +89,8 @@ while (assetColl.hasNext()):
 		errore=""
 		#**** Aggiornamento tabella di stage ****
 		asset.getBOField("flgImport").setValue(Boolean.TRUE)
+		asset.getBOField("utente").setValue(user)
+		asset.getBOField("dataCaricamento").setValue(datchg)
 		#**** Aggiornamento contatore ****
 		numeroInserimenti += 1
 	else:
@@ -101,7 +103,7 @@ assetColl.finish()
 strResult = " - Asset aggiornati: " + Integer(numeroInserimenti).toString()
 if (numeroScarti != 0):
 	strResult += " - Asset non aggiornati per errore nei dati: " + Integer(numeroScarti).toString()
-strResult += " - Fare riferimento al Catalogo 'StageUpdateAsset'."
+strResult += " - Fare riferimento al Catalogo 'Aggiornamento Asset'."
 
 _output.put("strResult", strResult)
 
