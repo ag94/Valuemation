@@ -37,7 +37,7 @@ i = 0
 conteggioRighe = 0
 numRigheCommit = 1
 controlloAggiornamento = None
-
+errore=""
 sac=""
 rda=""
 sn=""
@@ -71,12 +71,22 @@ while (assetColl.hasNext()):
 		#**** Aggiornamento del serial number****
 		if sn != "":
 			Component.getBOField("serialNo").setValue(sn)
+		else:
+		    errore+="serial number non presente "
+		    asset.getBOField("codError").setValue(errore)
 		#**** Aggiornamento di rda****
 		if rda!= "":
 			Component.getBOField("cfldc01").setValue(rda)
-         #**** Aggiornamento di sac****
+		else:
+		    errore+=" rda non presente"
+		    asset.getBOField("codError").setValue(errore)
+		 #**** Aggiornamento di sac****
 		if sac!= "":
 			Component.getBOField("fixedAssetId").setValue(sac)
+		else:
+		    errore+=" sac non prensente"
+		    asset.getBOField("codError").setValue(errore)
+		errore=""
 		#**** Aggiornamento tabella di stage ****
 		asset.getBOField("flgImport").setValue(Boolean.TRUE)
 		#**** Aggiornamento contatore ****
