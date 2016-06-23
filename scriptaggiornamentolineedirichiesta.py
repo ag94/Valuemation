@@ -59,32 +59,35 @@ while (assetColl.hasNext()):
 
 	#**** check Richiesta/Linea di Richiesta ****
 	Reqitem = chkReqitem(requisition, reqitem, transaction)
+	Status=String(Reqitem.getBOField("reqitemStatus").getNotNullValue()).trim()
+
 	if Reqitem is None:
 		numeroScarti += 1
 		asset.getBOField("flgImport").setValue(Boolean.FALSE)
 		asset.getBOField("codError").setValue("Richiesta non trovata in SAM ITAM (Coppia 'Richiesta/Linea').")
-	elif Reqitem.getBOField("reqitemStatus") == "Approvazione Tecnica" and reqitemstatus == "Da evadere":
-		Reqitem.getBOField("reqitemStatus").setValue("Da evadere")
+	elif Status == "SP" and reqitemstatus == "BF":
+		Reqitem.getBOField("reqitemStatus").setValue("BF")
 		#**** Aggiornamento tabella di stage ****
 		asset.getBOField("flgImport").setValue(Boolean.TRUE)
 		asset.getBOField("utente").setValue(user)
-		asset.getBOField("dataCaricamento").setValue(datchg)
+		asset.getBOField("datechg").setValue(dataCurr)
 		#**** Aggiornamento contatore ****
 		numeroInserimenti += 1
 
-	elif Reqitem.getBOField("reqitemStatus") == "Da evadere" and reqitemstatus == "In Fase di acquisto":
+	elif Status == "BF" and reqitemstatus == "In Fase di acquisto":
 		Reqitem.getBOField("reqitemStatus").setValue("In Fase di acquisto")
 		#**** Aggiornamento tabella di stage ****
 		asset.getBOField("flgImport").setValue(Boolean.TRUE)
 		asset.getBOField("utente").setValue(user)
-		asset.getBOField("dataCaricamento").setValue(datchg)
+		asset.getBOField("dataCaricamento").setValue(dataCurr)
 		#**** Aggiornamento contatore ****
 		numeroInserimenti += 1
+	elif not(Status == "BF" and reqitemstatus == "In Fase di acquisto") and not(Status == "SP" and reqitemstatus == "BF"):
+		numeroScarti += 1
+		asset.getBOField("flgImport").setValue(Boolean.FALSE)
+		asset.getBOField("codError").setValue("Aggiornamento non rispetta requisiti")
 	else:
-	    numeroScarti += 1
-        asset.getBOField("flgImport").setValue(Boolean.FALSE)
-        asset.getBOField("codError").setValue("Aggiornamento non rispetta requisiti")
-
+		continue
 	numeroTotale += 1
 	transaction.doCommitResume()
 
@@ -93,7 +96,7 @@ assetColl.finish()
 strResult = " - Richieste aggiornate: " + Integer(numeroInserimenti).toString()
 if (numeroScarti != 0):
 	strResult += " - Richieste non aggiornate per errore nei dati: " + Integer(numeroScarti).toString()
-strResult += " - Fare riferimento al Catalogo 'Tutte le Linee di Richiesta'."
-
+strResult += " - Fare riferimento al Catalogo 'Aggiornamento Massivo Linee di Richiesta'."
+numeroScarti = 0
 _output.put("strResult", strResult)
 
